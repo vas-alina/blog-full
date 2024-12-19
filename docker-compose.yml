@@ -1,0 +1,48 @@
+
+
+services:
+ 
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    ports:
+      - "5433:5432"  
+    environment:
+      POSTGRES_DB: db3 
+      POSTGRES_USER: user3
+      POSTGRES_PASSWORD: password3  
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  
+
+
+  server:
+    build:
+      context: ./server
+    ports:
+      - "6002:6002"
+    environment:
+      DB_HOST: postgres  
+      DB_PORT: 5432  
+      DB_NAME: db3
+      DB_USER: user3
+      DB_PASSWORD: password3
+    depends_on:
+      - postgres  
+    volumes:
+      - ./server:/usr/src/app
+    command: npm run dev  
+
+
+  client:
+    build:
+      context: ./client
+    ports:
+      - "6001:6001"
+    volumes:
+      - ./client:/usr/src/app
+    depends_on:
+      - server
+    command: npm run dev -- --host
+
+volumes:
+  postgres_data:
